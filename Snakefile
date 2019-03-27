@@ -140,6 +140,7 @@ rule tails_report:
         tails = rules.spikein_qc.output.dat,
     output:
         pdf = "reports/tails_report.pdf",
+        tsv = "reports/tails_report.tsv",
     params:
         x = config["per_transcript_plots"]
     conda: "env.yml"
