@@ -1,111 +1,98 @@
 settings:
- environ:
-   working_directory: '.'
-   temporary_directory: ''
-   output_directory: ''
-   custom:
-       Baywatch:
-               name: 'Estimate poly(A) tail lengths using nanopolish'
-               description: |
-                    Estimate poly(A) tail lengths using nanopolish from nanopore direct RNA data.
-               fields:
-                 - label: Choose your reference transcriptome
-                   description: |
-                    Path to the reference transcriptome.
-                   path: workflow.data.transcriptome.path
-                   fieldType: file
-                 - label: Choose FAST5 directory
-                   description: |
-                    Path to the FAST5 directory.
-                   path: workflow.data.fast5_dir.path
-                   fieldType: directory
-                 - label: Choose FASTQ directory
-                   description: |
-                    Path to the FASTQ directory.
-                   path: workflow.data.fastq_dir.path
-                   fieldType: directory
-                 - label: Choose sequencing summary directory
-                   description: |
-                    Path to the directory containing sequencing summary files.
-                   path: workflow.data.summary_dir.path
-                   fieldType: directory
-                 - label: Choose your spike-in fasta file.
-                   description: |
-                    Path to the fasta file containing spike-ins with known poly(A) tails length. The sequence names must end in _<tail_length> (for example "_50").
-                   path: workflow.data.spikein_fasta.path
-                   fieldType: file
-                 - label: Minimum mapping quality
-                   description: |
-                    Minimum mapping quality.
-                   path:  workflow.data.min_mapping_qual
-                   fieldType: number
-                   min: 0
-                   value: 5
-                 - label: Threads
-                   description: |
-                    Number of threads to use.
-                   path:  workflow.data.threads
-                   fieldType: number
-                   min: 1
-                   value: 4
-                 - label: Generate per-transcript plots
-                   description: |
-                    Generate per-transcript plots
-                   path: workflow.data.per_transcript_plots
-                   fieldType: boolean
-                   value: true
+  environ:
+    working_directory: .
+    temporary_directory: ''
+    output_directory: ''
+    custom:
+      Baywatch:
+        name: 'Call pol(A) tails using nanopolish'
+        description: |
+            This pipeline uses snakemake, minimap2 and nanopolish to call poly(A) tails from Oxford Nanopore direct RNA data.
+            The pipeline-polya-diff pipeline takes the output file tails/filtered_tails.tsv from multiple controls and treated samples and performs analysis of shifts in poly(A) tail lengths.
+        fields:
+        - label: Transcriptome fasta
+          description: Transcriptome fasta
+          path: workflow.data.transcriptome.path
+          fieldType: file
+        - label: Directory with FAST5 files
+          description: Directory with FAST5 files
+          path: workflow.data.fast5_dir.path
+          fieldType: directory
+        - label: Directory with fastq files
+          description: Directory with fastq files
+          path: workflow.data.fastq_dir.path
+          fieldType: directory
+        - label: Directory with sequencing summary files
+          description: Directory with sequencing summary files
+          path: workflow.data.summary_dir.path
+          fieldType: directory
+        - label: Fasta file containing spike-ins
+          description: Fasta file containing spike-ins
+          path: workflow.data.spikein_fasta.path
+          fieldType: string
+        - label: Generate per-transcript plots
+          description: Generate per-transcript plots
+          path: workflow.data.per_transcript_plots.path
+          fieldType: boolean
+          value: true
+        - label: Minimum mapping quality
+          description: Minimum mapping quality
+          path: workflow.data.min_mapping_qual.path
+          fieldType: number
+          value: 5
+        - label: Threads
+          description: Threads
+          path: workflow.data.threads.path
+          fieldType: number
+          value: 50
 workflow:
   data:
     transcriptome:
       class: File
-      path: ""
+      path: ''
     fast5_dir:
       class: Directory
-      path: ""
+      path: ''
     fastq_dir:
       class: Directory
-      path: ""
+      path: '' 
     summary_dir:
       class: Directory
-      path: ""
-    spikein_fasta:
-      class: File
-      path: ""
+      path: ''
+    spikein_fasta: ''
+    per_transcript_plots: true
     min_mapping_qual: 5
-    per_transcript_plots: "true"
     threads: 50
   steps:
-    - Process:
-        name: 'Poly(A) tail calling using nanopolish'
-        HostSNK:
-          target: 'all'
-          cores: 50
-          location:
-            class: Directory
-            path: '.'
-          #conda-prefix: ""
-          config_template:
-            class: File
-            path: "config.yml"
-          inputs:
-            - path: data.transcriptome
-              confpath: transcriptome
-              remap: paths
-            - path: data.fast5_dir
-              confpath: fast5_dir
-              remap: paths
-            - path: data.fastq_dir
-              confpath: fastq_dir
-              remap: paths
-            - path: data.summary_dir
-              confpath: summary_dir
-              remap: paths
-            - path: data.spikein_fasta
-              confpath: spikein_fasta
-              remap: paths
-            - path: data.threads
-              confpath: threads
-            - path: data.min_mapping_qual
-              confpath: min_mapping_qual
-            - path: data.per_transcript_plots
-              confpath: per_transcript_plots
+  - Process:
+      name: 'Call pol(A) tails using nanopolish'
+      HostSNK:
+        target: all
+        cores: 5
+        location:
+          class: Directory
+          path: .
+        config_template:
+          class: File
+          path: config.yml
+        inputs:
+        - path: data.transcriptome
+          confpath: transcriptome
+          remap: paths
+        - path: data.fast5_dir
+          confpath: fast5_dir
+          remap: paths
+        - path: data.fastq_dir
+          confpath: fastq_dir
+          remap: paths
+        - path: data.summary_dir
+          confpath: summary_dir
+          remap: paths
+        - path: data.spikein_fasta
+          confpath: spikein_fasta
+        - path: data.per_transcript_plots
+          confpath: per_transcript_plots
+        - path: data.min_mapping_qual
+          confpath: min_mapping_qual
+        - path: data.threads
+          confpath: threads
