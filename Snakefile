@@ -2,7 +2,7 @@
 import os
 from os import path
 
-if not workflow.overwrite_configfile:
+if not workflow.overwrite_configfiles:
     configfile: "config.yml"
 workdir: path.join(config["workdir_top"], config["pipeline"])
 
@@ -44,7 +44,7 @@ rule make_fofn:
     output:
         fofn = "input/summaries.fofn"
     shell:"""
-    find {input.sum_dir} -maxdepth 1 -type f -name "*.txt" -print > {output.fofn}
+    find {input.sum_dir} -maxdepth 1 -type f -name "sequencing_summary*.txt" -print > {output.fofn}
     """
 
 rule make_fastq:
