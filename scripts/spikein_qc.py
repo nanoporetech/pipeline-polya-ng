@@ -64,6 +64,8 @@ def _make_boxplots(df, mdf, pages):
 def _make_regplot(df, pages, title, jitter=0):
     ax = sns.regplot(x="TrueTail", y="polya_length", data=df, fit_reg=True, x_jitter=jitter)
     ax.set_title(title)
+    if len(df.polya_length.values) == 0:
+        return
     r, p = scipy.stats.pearsonr(df.TrueTail.values, df.polya_length.values)
     rtext = "Pearson r ={:.3f}, p-value={:.3f}".format(r, p)
     ax.text(1.0, 0.98, rtext, horizontalalignment='right', verticalalignment='center', transform=ax.transAxes)
